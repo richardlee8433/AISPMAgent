@@ -1,0 +1,317 @@
+AI SPM v0.1 規劃
+
+0) 目標與原則
+目標
+
+草稿進來後，agent 先做 去重 / 角色定位 / 系列總編審稿 / canonical mapping
+
+你決定「要發」後：
+
+文章存到 Obsidian 的 LinkedIn Post Library（LPL）（時間線、可多篇）
+
+LTI 只在 new_canonical 或 merge_to_existing 完成後更新（一 ID 一篇 canonical）
+
+若是 merge：agent 需要輸出「合併後的 LTI 新版內容」，並自動更新到 Obsidian（LTI doc + LTI index）
+
+LTI / LPL 各有一個 index，且都能被 agent 可靠讀取、搜尋、分析
+
+核心治理原則（固定寫進系統）
+
+LPL（LinkedIn）是時間線輸出庫：允許同題多篇、迭代、短長混搭
+
+LTI 是 Canonical articulation：One ID, One Article（允許升級，但仍是一篇）
+
+LPL 可以先發、LTI 可以後更新：因為 LTI 是 canon，不是 feed
+
+1) Obsidian Vault 檔案結構（建議）
+
+你現在的 Index 在 G:\My Drive\AI Native PM\AI Native PM\00_Index\...，我就沿用這個風格，新增一個 library。
+
+AI Native PM/
+  00_Index/
+    LTI Index vX.Y.Z.md
+    LPL Index v0.1.md
+    RTI Index.md
+
+  10_LTI/
+    LTI-6.0.md
+    LTI-6.1.md
+    ...
+    LTI-6.4.md
+
+  11_LPL/                        # LinkedIn Post Library（時間線）
+    2026/
+      01/
+        LPL-20260129-001.md
+        LPL-20260131-002.md
+      02/
+        ...
+
+  12_COS/
+    LTI-6.4/
+      20260129T164051Z-draft.md  # revision evidence（你現在 runs 也會產生 artifacts）
+      ...
+
+  90_AgentData/                  # 給 agent 用的 machine-readable data
+    lti_index.json
+    lpl_index.jsonl              # append-only（或 json）
+    lti_links.json               # optional: LPL <-> LTI mapping
+
+
+註：LPL Index v0.1.md 可以是一個人讀得懂的目錄；lpl_index.jsonl 是 agent SSOT。
+
+2) 新格式建議：LTI 與 LPL 的 Frontmatter（讓 agent 好用）
+
+你要的重點是「AI 方便搜尋/分析」：
+→ Frontmatter 必須是 stable、可 schema 化，且不要依賴自然語言。
+
+2.1 LPL（LinkedIn Post）格式 v0.1（建議 YAML Frontmatter）
+---
+type: lpl_post
+lpl_id: LPL-20260129-001
+date_created: 2026-01-29T16:40:51Z
+date_published: null        # 發了才填
+status: draft               # draft|scheduled|published|archived
+channel: linkedin
+language: en
+
+title: "From Prompt to Agent: Making Evaluation Governable"
+hook: "This is not a prompt. This is a governed decision workflow."
+hashtags: ["#AIProduct", "#Evals", "#LangGraph", "#Governance"]
+
+derived_from:
+  draft_run_id: "20260129T164051Z"
+  source_note: "runs/20260129T164051Z"
+
+links:
+  canonical_lti_targets: ["LTI-6.4"]     # 這篇主要落到哪個 LTI slot
+  rti_anchors: ["RTI-3.4", "MF-5"]       # optional
+  related_lpl: []
+
+agent:
+  role_classification:
+    primary_mainline: "LTI-6.x"
+    semantic_slot: "LTI-6.4"
+    is_patch: false
+    confidence: 0.90
+  editor_recommendation: "publish_with_revision"
+  dedupe_verdict: "NEW"
+  best_match_lti: "LTI-6.2"
+
+metrics:
+  impressions: null
+  reactions: null
+  comments: null
+  reposts: null
+
+summary:
+  one_liner: "Evaluation’s value is defining responsibility and enabling governance."
+  abstract: "Build-in-public log from prompt → workflow → agent with governance gates."
+---
+
+# Post Body
+...
+
+
+為什麼這套好？
+
+LPL 允許多篇，所以要有 lpl_id + date + status
+
+canonical_lti_targets 讓你後續做「發文 → 影響哪個 LTI」
+
+agent.* 把 pipeline 證據留在文章上（可 audit、可分析你自己的成長）
+
+2.2 LTI（Canonical）格式 v0.2（建議 YAML Frontmatter）
+---
+type: lti_canonical
+lti_id: LTI-6.4
+mainline: LTI-6.x
+slot: "no-go threshold"
+status: canonical
+
+title: "“It Works” Isn’t Enough: How PMs Decide When to Say NO"
+language: en
+version: 6.4.2                 # canonical internal version（不是新 ID）
+last_updated: 2026-01-29T17:05:00Z
+
+anchors:
+  rti: ["RTI-3.4"]
+  mf: ["MF-5"]
+
+linked_posts:
+  supporting_lpl: ["LPL-20260129-001", "LPL-20260131-002"]
+
+governance:
+  policy: "one-id-one-article"
+  change_log:
+    - ts: 2026-01-29T17:05:00Z
+      action: merge
+      source_run_id: "20260129T164051Z"
+      source_lpl: "LPL-20260129-001"
+      notes: "Integrated editor suggestions; tightened core judgment."
+
+summary:
+  one_liner: "A NO-GO decision is a governance boundary, not a metric threshold."
+  abstract: "Canonical articulation of judgement slot 6.4."
+---
+
+# Canonical Article
+...
+
+
+關鍵點：
+
+LTI 不是多篇 → 所以用 version 做升級（6.4.1、6.4.2），而不是再開新 ID
+
+change_log 讓 merge 有可追溯證據（非常 AI PM）
+
+3) Index 設計（LTI / LPL 各有 SSOT）
+
+你需要兩種 index：
+
+人讀的 md index（Obsidian 目錄）
+
+agent 讀的 machine index（JSON/JSONL）
+
+3.1 LPL Index（machine）— lpl_index.jsonl（append-only）
+
+每發一篇就 append 一行：
+
+{"lpl_id":"LPL-20260129-001","date_created":"2026-01-29T16:40:51Z","date_published":null,"status":"draft","title":"From Prompt to Agent: Making Evaluation Governable","canonical_lti_targets":["LTI-6.4"],"language":"en","one_liner":"Evaluation’s value is defining responsibility and enabling governance.","path":"11_LPL/2026/01/LPL-20260129-001.md"}
+
+
+好處：append-only 不容易壞、也適合 run artifacts 對齊。
+
+3.2 LTI Index（machine）— lti_index.json
+
+你已經有了，建議新增幾個欄位以支援 merge governance：
+
+{
+  "id": "LTI-6.4",
+  "title": "“It Works” Isn’t Enough: How PMs Decide When to Say NO",
+  "mainline": "LTI-6.x",
+  "slot": "no-go threshold",
+  "status": "canonical",
+  "path": "10_LTI/LTI-6.4.md",
+  "last_updated": "2026-01-29T17:05:00Z",
+  "version": "6.4.2",
+  "anchors": ["RTI-3.4","MF-5"],
+  "linked_posts": ["LPL-20260129-001"],
+  "summary": "..."
+}
+
+3.3 人讀 index（md）
+
+00_Index/LPL Index v0.1.md：按月份列出文章與狀態
+
+00_Index/LTI Index vX.Y.Z.md：維持你既有格式即可，只需把 version/last_updated 類欄位補上（可選）
+
+4) 新的 Agent Workflow（把 LPL 加進來）
+
+你現在已有：
+SYNC_INDEX → DEDUPE → ROLE_CLASSIFIER → EDITOR → ID_MAPPER → GATE
+
+加入 LPL 後，變成：
+
+Flow v0.6.0（含 LPL）
+
+SYNC_LTI_INDEX（你已做）
+
+DEDUPE（全文 tolerant）
+
+ROLE_CLASSIFIER
+
+EDITOR
+
+ID_MAPPER（one-id-one-article policy）
+
+GATE（你）
+
+POST_PERSIST_NODE（只在你選擇「要發文」時執行）
+
+寫入 Obsidian：11_LPL/.../LPL-YYYYMMDD-NNN.md
+
+append lpl_index.jsonl
+
+更新 LPL Index v0.1.md（可選，或另外 node）
+
+LTI_UPDATE_NODE（conditional）
+
+僅當 canonical_action 是：
+
+new_canonical 且你確認要建立 LTI → 生成 10_LTI/LTI-x.y.md + 更新 lti_index.json + LTI md index
+
+merge_to_existing 且你確認 merge → 產出 合併後 LTI 內容、覆寫 LTI-6.4.md、升 version、寫 change_log、更新 index
+
+5) Merge 的具體產出（你要求的「需要建議 merge 後的 LTI 內容」）
+
+當 canonical_action=merge_to_existing，LTI_UPDATE_NODE 要輸出三個 artefacts（非常乾淨）：
+
+(A) merge_plan
+
+這次草稿帶來的增量是什麼？
+
+要插入 canonical 哪一段？
+
+哪些句子可以保留作為 one-liner？
+
+(B) lti_updated_markdown
+
+完整的新 canonical（可直接覆寫檔案）
+
+(C) diff_summary（可選，但很有價值）
+
+“Added section X”
+
+“Replaced paragraph Y”
+
+“Tightened hook”
+
+這三個東西會讓你像在做「產品變更」，而不是「改文章」。
+
+6) Obsidian 自動更新策略（落地方式）
+
+你要「自動寫回 Obsidian」有兩種模式：
+
+模式 A：agent 在本機直接寫檔（你現況最容易）
+
+Python node 直接寫到 G:\My Drive\... 路徑
+
+注意：Google Drive 同步可能延遲 → 建議寫入後做一次 os.path.exists 確認
+
+模式 B：先寫到 repo，再同步到 Obsidian（較穩）
+
+agent 只寫到專案內 obsidian_export/
+
+你用同步工具（或手動）拷到 vault
+
+好處：避免 Drive 鎖檔/延遲造成寫入失敗
+
+7) Governance：你在 Gate 需要新增一個問題（建議）
+
+為了配合 LPL/LTI 分離，Gate 的決策可以拆成兩段：
+
+Decision 1：是否要發 LinkedIn？
+
+publish now / schedule / no publish (archive)
+
+Decision 2：是否要更新 LTI canonical？
+
+merge now / later / no change
+
+這樣你就不會被迫「發文 = 更新 canon」。
+
+8) 最小可行落地（MVP 建議）
+
+你不要一次做太多，我建議先做 MVP v0.1：
+
+✅ POST_PERSIST_NODE：能把你確認要發的文章寫到 11_LPL/ + append lpl_index.jsonl
+✅ LTI_UPDATE_NODE：僅支援 merge_to_existing（覆寫 LTI + bump version + update lti_index.json）
+
+其餘（md index 自動生成、metrics 回填）可以 v0.2 再做。
+
+9) 你接下來我建議我們先定的兩個「政策參數」
+
+LPL ID 規則：LPL-YYYYMMDD-NNN（NNN 是當天序號）
+
+LTI version 規則：6.4.1 / 6.4.2（只在 canonical 內容變更時 bump）

@@ -1,0 +1,10 @@
+{
+  "graphs": {
+    "app": "lti_graph:app"
+  },
+  "dependencies": [
+    "langgraph",
+    "langchain",
+    "openai"
+  ]
+}

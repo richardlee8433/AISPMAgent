@@ -1,0 +1,47 @@
+[
+  {
+    "id": "LTI-6.0",
+    "title": "When AI Knowledge Changes Behaviour, Governance Becomes a PM Problem",
+    "series": "LTI-6.x / Judgement-as-a-Service",
+    "status": "active",
+    "published_at": "2025-12-28",
+    "tags": ["Governance", "AI PM", "Behaviour Change", "Judgement"],
+    "summary": "Explores how AI systems that change user behaviour inherently shift governance responsibility to product management, making judgement a product concern rather than a policy afterthought."
+  },
+  {
+    "id": "LTI-6.1",
+    "title": "2026: AI Will Stop Being Impressive, and Start Being Accountable",
+    "series": "LTI-6.x / Judgement-as-a-Service",
+    "status": "active",
+    "published_at": "2025-12-28",
+    "tags": ["Accountability", "AI Systems", "Governance", "AI PM"],
+    "summary": "Argues that the next phase of AI evolution is defined not by performance or demos, but by accountability, traceability, and governance of AI-driven decisions."
+  },
+  {
+    "id": "LTI-6.2",
+    "title": "Beyond Pass/Fail: Lessons from Risk-Tiered AI Evaluation",
+    "series": "LTI-6.x / Judgement-as-a-Service",
+    "status": "active",
+    "published_at": "2026-01-07",
+    "tags": ["Evaluation", "Risk Tiering", "AI Governance", "Decision Making"],
+    "summary": "Shows why binary pass/fail evaluation is insufficient for AI systems and introduces risk-tiered evaluation as a foundation for governance and judgement."
+  },
+  {
+    "id": "LTI-6.3",
+    "title": "Accountability Is a Design Choice, Not a Role",
+    "series": "LTI-6.x / Judgement-as-a-Service",
+    "status": "active",
+    "published_at": "2026-01-26T15:00:00Z",
+    "tags": ["Accountability", "Governance Design", "AI PM", "Judgement"],
+    "summary": "Establishes accountability as an explicit design decision embedded in system workflows, rather than a responsibility assigned to a person or role."
+  },
+  {
+    "id": "LTI-6.4",
+    "title": "“It Works” Isn’t Enough: How PMs Decide When to Say NO",
+    "series": "LTI-6.x / Judgement-as-a-Service",
+    "status": "active",
+    "published_at": "2026-01-20",
+    "tags": ["Product Judgment", "NO-GO Decisions", "Governance", "AI PM"],
+    "summary": "Examines how product managers make NO-GO decisions in AI systems, emphasizing judgement, risk ownership, and governance beyond technical correctness."
+  }
+]

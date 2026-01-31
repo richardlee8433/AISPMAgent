@@ -1,0 +1,233 @@
+[
+  {
+    "id": "LTI-1.1",
+    "title": "Category：AI PM Identity / Workflow Thinking",
+    "series": "LTI-1.x / (Unclassified)",
+    "status": "active",
+    "published_at": "",
+    "tags": [
+      "Evaluation",
+      "AI PM"
+    ],
+    "summary": "Category：AI PM Identity / Workflow Thinking\nCreated：2025-12-01\nLinked：RTI-1.4（AI-Native PM）、RTI-3.1（Workflow Architect）\nSummary\n你在這篇文章中闡述 AI PM 真正的能力不是 Prompting，而是設計一個可被 LLM 穩定執行的「系統」。MentorFlow v0.8 展示了你從“模型回答”到“模型在 workflow 運行”的思維躍遷。\nKey Points\nAI PM 的核心不是 prompt，而是 execution system 的設計。\n你透過 MentorFlow 重新定義 Lesson Flow：Goal → Concept → Question → Feedback → Reinforcement → Next Step。\nAI-native UX（streaming, auto-read, multi-mode）是穩定體驗的關鍵。\n你採用 plug-in architecture，使 MentorFlow 能跨版本擴展，而非一次性 dem"
+  },
+  {
+    "id": "LTI-1.2",
+    "title": "Category：AI PM Growth Framework",
+    "series": "LTI-1.x / (Unclassified)",
+    "status": "active",
+    "published_at": "",
+    "tags": [
+      "Evaluation",
+      "AI PM"
+    ],
+    "summary": "Category：AI PM Growth Framework\nCreated：2025-11-27\nLinked：RTI-1.4（AI-Native PM Growth）、RTI-1.6（10 Abilities）\nSummary\n你提出的「三線式成長系統」是 AI PM 的有效學習模型：Build（實作）、Think & Write（反思）、Learn Theory（概念）。此模式建立一條能不斷迭代與深化的能力飛輪。\nKey Points\nLine 1：Build → MentorFlow 成為你的 AI 系統實驗室。\nLine 2：Think & Write → 把實驗轉成 PM 思維。\nLine 3：Learn Theory → 只學 PM 用得到的 AI 概念。\n三線形成循環：做 → 想 → 學 → 再做。\nSource Citation\nThe “3 Lines Learning System” I’m using to grow into an AI PM\nTrying to go deeper into AI as a PM has been overwhelming."
+  },
+  {
+    "id": "LTI-1.4",
+    "title": "**How MentorFlow took its first step from 2D → 3D.**",
+    "series": "LTI-1.x / (Unclassified)",
+    "status": "active",
+    "published_at": "",
+    "tags": [
+      "Evaluation",
+      "AI PM"
+    ],
+    "summary": "**How MentorFlow took its first step from 2D → 3D.**\n今天，我做了一件有點不尋常的事。\n在進入 MentorFlow v0.9（Evaluation Engine）之前，\n我先完成了一個支線任務：\n👉 **讓講課的 AI，不再只停留在 2D。**\n👉 **而是站進一個 3D 世界裡，用三種語言教課。**\n這是 **MentorFlow 的第一個 3D Interface Layer**。\n版本名稱：**MVP 0.1**（獨立於主版本線）\n---\n# **1️⃣ Why I Built This (Before v0.9)**\nMentorFlow 的 Lecture Engine（語音版教學引擎）越做越成熟。\n但我一直有個問題：\n> 「如果 AI 是未來的企業導師，它真的需要永遠停留在平面嗎？」\n企業訓練不會永遠是文件、影片、測驗。\nAI-native training 一定會走向 **沉浸式、多語言、互動式**。\n所以我想驗證一件事：\n📌 **Lecture Engine 能不能在不改架構的情況下直接輸出到 3D？**\n📌 **跨"
+  },
+  {
+    "id": "LTI-2.1",
+    "title": "Category：AI PM System Reasoning / Agent Workflows",
+    "series": "LTI-2.x / (Unclassified)",
+    "status": "active",
+    "published_at": "",
+    "tags": [
+      "Evaluation",
+      "AI PM"
+    ],
+    "summary": "Category：AI PM System Reasoning / Agent Workflows\nCreated：2025-12-04\nLinked：RTI-1.5（Course Gap）、RTI-1.6（10 Abilities）、RTI-3.1（Workflow Architect）\nSummary\n你指出 AI PM 正從 Prompts → Agents → Systems 的方向演化。AWS re:Invent 只是揭露了業界趨勢：AI PM 必須設計“可執行任務的系統”，而不只是調整 prompt。\nKey Points\nLLM 1.0 → 回答；LLM 2.0 → 執行任務。\nMentorFlow 在本質上已經是 agent orchestration（Teach → Correct → Ask → Guide）。\nFuture AI = multi-agent systems + workflow design。\n你已從“prompt PM”進化為“system PM”。\nSource Citation\nThe Future of AI PM Is Clearer A"
+  },
+  {
+    "id": "LTI-3.0",
+    "title": "From Game Prototype to Real Business MVP — Built in Just One Week with AI In the past, building an MVP as a Product Mana",
+    "series": "LTI-3.x / (Unclassified)",
+    "status": "active",
+    "published_at": "",
+    "tags": [
+      "AI PM"
+    ],
+    "summary": "From Game Prototype to Real Business MVP — Built in Just One Week with AI In the past, building an MVP as a Product Manager required coordinating at least one designer and one engineer, and typically took one to two weeks. Any requirement change meant additional rework and slower iteration."
+  },
+  {
+    "id": "LTI-3.1",
+    "title": "MentorFlow v0.6 is live 🚀 and this is the first version that starts to feel like a real product.",
+    "series": "LTI-3.x / (Unclassified)",
+    "status": "active",
+    "published_at": "",
+    "tags": [
+      "AI PM"
+    ],
+    "summary": "MentorFlow v0.6 is live 🚀 and this is the first version that starts to feel like a real product. For the past weekend, I’ve been rebuilding the entire interface, moving from a simple HTML demo to a real product structure using React + Tailwind + shadcn/ui."
+  },
+  {
+    "id": "LTI-3.2",
+    "title": "MentorFlow v0.7 is live — and this version adds something special: your own knowledge. (Try it : https://lnkd.in/eQe_DJ2",
+    "series": "LTI-3.x / (Unclassified)",
+    "status": "active",
+    "published_at": "",
+    "tags": [
+      "Governance",
+      "Evaluation",
+      "AI PM"
+    ],
+    "summary": "MentorFlow v0.7 is live — and this version adds something special: your own knowledge. (Try it : https://lnkd.in/eQe_DJ2K) For the first time, MentorFlow can learn from the user."
+  },
+  {
+    "id": "LTI-3.3",
+    "title": "AI PM as a systems designer — the real skill isn’t “prompting,” but turning an idea into a working AI system.",
+    "series": "LTI-3.x / (Unclassified)",
+    "status": "active",
+    "published_at": "",
+    "tags": [
+      "Evaluation",
+      "AI PM"
+    ],
+    "summary": "AI PM as a systems designer — the real skill isn’t “prompting,” but turning an idea into a working AI system. MentorFlow v0.8 is my latest proof."
+  },
+  {
+    "id": "LTI-4.1",
+    "title": "LTI-4.1 — My Favourite AI Books (and Why They Matter to PMs)",
+    "series": "LTI-4.x / (Unclassified)",
+    "status": "active",
+    "published_at": "",
+    "tags": [
+      "Evaluation",
+      "AI PM"
+    ],
+    "summary": "LTI-4.1 — My Favourite AI Books (and Why They Matter to PMs)\nCategory：AI PM Learning / Strategy\nCreated：2025-12-02\nLinked：RTI-1.6（10 Abilities）、RTI-2.1（Tacit Knowledge）\nSummary\n你介紹了三本深化 AI PM 思維的書，涵蓋 RAG、evaluation、AI decision frameworks 與 workflow 理論，強調“為什麼 AI 有效運作”比“怎麼用模型”更重要。\nKey Points\n《Hands-On LLMs》強化 RAG 與 evaluation 的實務理解。\n《AI Product Manager’s Handbook》專注 problem framing 與錯誤成本。\n《Power and Prediction》指出 AI 本質是 workflow 轉換，而非工具升級。\nSource Citation\nMy favourite AI books: hashtag#LinkedInNew"
+  },
+  {
+    "id": "LTI-5.1",
+    "title": "**Most AI products don’t fail because the model is weak.**",
+    "series": "LTI-5.x / (Unclassified)",
+    "status": "active",
+    "published_at": "",
+    "tags": [
+      "Evaluation",
+      "AI PM"
+    ],
+    "summary": "**Most AI products don’t fail because the model is weak.**\n**They fail because we can’t explain quality regressions.**\nOver the past few days, I finished v0.90 to v0.91 of the evaluation system for MentorFlow, an AI teaching product I’m building. This work wasn’t about improving demo quality."
+  },
+  {
+    "id": "LTI-5.2",
+    "title": "My model scored 0.98.",
+    "series": "LTI-5.x / (Unclassified)",
+    "status": "active",
+    "published_at": "",
+    "tags": [
+      "Governance",
+      "Evaluation",
+      "Risk Tiering",
+      "AI PM"
+    ],
+    "summary": "My model scored 0.98. I still blocked the release."
+  },
+  {
+    "id": "LTI-5.3",
+    "title": "**Published:** 2026-01-02 (UTC)",
+    "series": "LTI-5.x / (Unclassified)",
+    "status": "active",
+    "published_at": "",
+    "tags": [
+      "Governance",
+      "Evaluation",
+      "Risk Tiering",
+      "AI PM"
+    ],
+    "summary": "**Published:** 2026-01-02 (UTC)\n**MentorFlow:** v0.93\n**Role:** Evaluation → Governance 升級節點\n🚦 Not all AI failures are equal. So why do we treat them the same?"
+  },
+  {
+    "id": "LTI-5.4",
+    "title": "**LTI-5.4 — When Evaluation Starts to Learn: From Risk Awareness to Governance Memory**",
+    "series": "LTI-5.x / (Unclassified)",
+    "status": "active",
+    "published_at": "",
+    "tags": [
+      "Governance",
+      "Evaluation",
+      "Risk Tiering",
+      "AI PM"
+    ],
+    "summary": "**LTI-5.4 — When Evaluation Starts to Learn: From Risk Awareness to Governance Memory**\n**Published:** 2026-01-12 (UTC)\n**MentorFlow:** v0.94\n**Role:** Evaluation learning loop / Governance memory layer\nMentorFlow v0.94: When Evaluation Starts to Learn\nIn v0.93, I changed how MentorFlow makes release decisions. Not all AI failures are equal."
+  },
+  {
+    "id": "LTI-6.0",
+    "title": "When AI Knowledge Changes Behaviour, Governance Becomes a PM Problem",
+    "series": "LTI-6.x / Judgement-as-a-Service",
+    "status": "active",
+    "published_at": "2025-12-28",
+    "tags": [
+      "Governance",
+      "AI PM",
+      "Behaviour Change",
+      "Judgement"
+    ],
+    "summary": "Explores how AI systems that change user behaviour inherently shift governance responsibility to product management, making judgement a product concern rather than a policy afterthought."
+  },
+  {
+    "id": "LTI-6.1",
+    "title": "2026: AI Will Stop Being Impressive, and Start Being Accountable",
+    "series": "LTI-6.x / Judgement-as-a-Service",
+    "status": "active",
+    "published_at": "2025-12-28",
+    "tags": [
+      "Accountability",
+      "AI Systems",
+      "Governance",
+      "AI PM"
+    ],
+    "summary": "Argues that the next phase of AI evolution is defined not by performance or demos, but by accountability, traceability, and governance of AI-driven decisions."
+  },
+  {
+    "id": "LTI-6.2",
+    "title": "Beyond Pass/Fail: Lessons from Risk-Tiered AI Evaluation",
+    "series": "LTI-6.x / Judgement-as-a-Service",
+    "status": "active",
+    "published_at": "2026-01-07",
+    "tags": [
+      "Evaluation",
+      "Risk Tiering",
+      "AI Governance",
+      "Decision Making"
+    ],
+    "summary": "Shows why binary pass/fail evaluation is insufficient for AI systems and introduces risk-tiered evaluation as a foundation for governance and judgement."
+  },
+  {
+    "id": "LTI-6.3",
+    "title": "Accountability Is a Design Choice, Not a Role",
+    "series": "LTI-6.x / Judgement-as-a-Service",
+    "status": "active",
+    "published_at": "2026-01-26T15:00:00Z",
+    "tags": [
+      "Accountability",
+      "Governance Design",
+      "AI PM",
+      "Judgement"
+    ],
+    "summary": "Establishes accountability as an explicit design decision embedded in system workflows, rather than a responsibility assigned to a person or role."
+  },
+  {
+    "id": "LTI-6.4",
+    "title": "“It Works” Isn’t Enough: How PMs Decide When to Say NO",
+    "series": "LTI-6.x / Judgement-as-a-Service",
+    "status": "active",
+    "published_at": "2026-01-20",
+    "tags": [
+      "Product Judgment",
+      "NO-GO Decisions",
+      "Governance",
+      "AI PM"
+    ],
+    "summary": "Examines how product managers make NO-GO decisions in AI systems, emphasizing judgement, risk ownership, and governance beyond technical correctness."
+  }
+]
