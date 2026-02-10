@@ -1,37 +1,46 @@
-AISPMAgent: Autonomous Product Research & Strategy Agent 🤖
-Bridging the gap between messy market data and actionable product insights.
+AISPMAgent: The AI-SPM Development Pipeline 🤖
+An automated, governance-first workflow for building and evaluating AI product features.
 
-🎯 The "PM-for-PM" Mission
-In the era of AI, the bottleneck for Product Managers is no longer "writing," but "discovery and synthesis." AISPMAgent is an autonomous tool designed to automate the heavy lifting of market research, competitor analysis, and strategic positioning.
+🎯 The "System-for-AI-Products" Mission
+Building AI products is not about writing a single prompt; it's about managing a probabilistic lifecycle. AISPMAgent is a technical implementation of an automated PM pipeline. It ensures that no AI feature is shipped without passing through a rigorous Evaluation and Governance gate.
 
-It demonstrates my core belief: AI should not just chat; it should perform structured professional labor.
+It demonstrates a core AI PM capability: Engineering the product's decision-making logic.
 
-🧠 Strategic Features (The PM Edge)
-Multi-Agent Collaborative Logic: Unlike simple chatbots, this system uses specialized agents (Researcher, Strategist, Reviewer) to ensure multi-dimensional analysis.
+🧠 The Core Engine (Based on main.py)
+This project uses a LangGraph-powered State Machine to manage the transition from "Idea" to "Knowledge."
 
-Structured Output Engineering: Designed to output PM-standard documents (PRDs, Market Maps, SWOT) rather than vague conversational text.
+State-Based Workflow Nodes:
+MF Execute (Implementation): The core execution node where the AI feature or task is built.
 
-Discovery Automation: Reduces the time from "raw data" to "strategic hypothesis" by 70%, allowing PMs to focus on high-level decision making.
+EVAL (Evaluation): A dedicated node that runs LLM-based evaluation against predefined rubrics.
 
-🛠 Technical Stack & Implementation
-Framework: Built with a focus on Agentic Reasoning and tool-calling capabilities.
+GATE (Governance): A critical decision-making node. It doesn't just pass data; it judges it based on evaluation scores.
 
-Domain Expertise Encoding: The system prompts and logic are infused with Standard Product Frameworks (Jobs-to-be-Done, First Principles, Lean Startup).
+LTI (Learning, Trust, Iteration): The "Success" path. Only items that pass the Gate are published and integrated into the long-term knowledge base.
 
-Prompt Orchestration: Managed complex state transitions between agents to maintain context across long research tasks.
+COS (Archive): The "Risk-Mitigation" path. Failed iterations are archived for analysis, preventing faulty logic from reaching production.
 
-📊 How this fits my AI PM Portfolio
-This project is the Execution Layer of my AI PM philosophy:
+🛠 Technical Implementation
+LangGraph StateGraph: Unlike linear scripts, this project uses a graph-based architecture to handle complex loops and conditional routing.
 
-MentorFlow: How to Evaluate AI (The Infrastructure).
+Conditional Routing (route): Implements the logic approve -> LTI vs reject -> COS, showcasing how to automate Risk-Tiered Release Criteria.
 
-AISPMAgent: How to Apply AI to professional workflows (The Application).
+UniverseState Management: Maintains a consistent state across different stages of the AI product lifecycle.
 
-LTI Index: The Strategy that governs both (The Methodology).
+📊 The "Strategic Portfolio" Connection
+This project is the Integration Layer of my AI PM ecosystem:
+
+MentorFlow: The specialized RAG & Evaluation technology.
+
+AISPMAgent: The Automated Pipeline that orchestrates development (using the logic in main.py).
+
+AIPMO: The Organizational Framework and Natural Language Command Engine.
 
 🚀 Usage
 Bash
-# Clone the PM Intelligence
+# Clone the AI PM Pipeline
 git clone https://github.com/richardlee8433/AISPMAgent.git
-# Run the agentic workflow
-python main.py 
+
+# Run the Graph-based workflow
+# This will invoke the state machine from MF -> EVAL -> GATE -> LTI/COS
+python main.py
