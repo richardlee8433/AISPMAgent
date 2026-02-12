@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, UTC
 from rapidfuzz import fuzz
 import re
 from typing import Iterable
@@ -107,7 +107,7 @@ def ensure_dirs():
     RUNS_DIR.mkdir(parents=True, exist_ok=True)
 
 def run_id_now() -> str:
-    return datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+    return datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
 
 def persist_run(run_id: str, payload: dict, draft_raw: str):
     """

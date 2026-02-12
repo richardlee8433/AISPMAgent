@@ -7,11 +7,9 @@
 # - LTI_EDITOR (publish / revision / do_not_publish)
 # - ID_MAPPER (canonical_action + canonical_suggested_id)  <-- preferred
 #
-# Then asks the user to decide:
-#   [a] append to index (only meaningful if verdict=NEW and canonical_action=new_canonical)
-#   [c] archive to COS (store as draft/revision)
-#   [m] merge (treat as revision of existing canonical)
-#   [h] hold (do nothing)
+# Then asks user for two-step decisions:
+#   1) LPL post action
+#   2) Canonical LTI action
 
 from __future__ import annotations
 
@@ -123,27 +121,64 @@ def lti_gate_node(state: LTIState) -> LTIState:
         elif canonical_action == "archive_only":
             print("  → Not recommended as canonical. Recommended: [c] archive.")
 
-    print("\nDecisions:")
-    print("  [a] append to index (only meaningful if verdict=NEW and canonical_action=new_canonical)")
-    print("  [c] archive to COS (store as draft/revision)")
-    print("  [m] merge (treat as revision of best match / canonical)")
-    print("  [h] hold (do nothing)\n")
+    print("\nDecision 1 — Post action (LPL):")
+    print("  [p] publish_now")
+    print("  [s] schedule")
+    print("  [d] do_not_publish")
+    print("  [h] hold")
 
-    choice = _prompt_choice("Decision: ", {"a", "c", "m", "h"})
+    post_choice = _prompt_choice("Post action: ", {"p", "s", "d", "h"})
+    post_map = {
+        "p": "publish_now",
+        "s": "schedule",
+        "d": "do_not_publish",
+        "h": "hold",
+    }
+    state.post_action = post_map[post_choice]
 
-    if choice == "a":
-        state.decision = "append"
-    elif choice == "c":
-        state.decision = "archive"
-    elif choice == "m":
+    print("\nDecision 2 — Canonical action (LTI):")
+    if state.post_action == "hold":
+        print("  hold mode guard: merge_now/create_now are blocked")
+        print("  [u] update_later")
+        print("  [n] no_change")
+        canon_choice = _prompt_choice("Canonical action: ", {"u", "n"})
+    else:
+        print("  [m] merge_now")
+        print("  [c] create_now")
+        print("  [u] update_later")
+        print("  [n] no_change")
+        canon_choice = _prompt_choice("Canonical action: ", {"m", "c", "u", "n"})
+
+    canon_map = {
+        "m": "merge_now",
+        "c": "create_now",
+        "u": "update_later",
+        "n": "no_change",
+    }
+    state.canonical_decision = canon_map[canon_choice]
+
+    if state.post_action == "publish_now":
+        url = input("LinkedIn URL (optional, press enter to skip): ").strip()
+        state.post_url = url or None
+
+    # backward-compatible summary decision for old routing/telemetry
+    if state.post_action == "hold":
+        state.decision = "hold"
+    elif state.canonical_decision == "merge_now":
         state.decision = "merge"
+    elif state.canonical_decision == "create_now":
+        state.decision = "append"
+    elif state.post_action == "do_not_publish":
+        state.decision = "archive"
     else:
         state.decision = "hold"
 
     reason = input("Reason (short): ").strip()
     state.decision_reason = reason
 
-    print(f"\nDecision: {state.decision}")
+    print(f"\nDecision(post): {state.post_action}")
+    print(f"Decision(canonical): {state.canonical_decision}")
+    print(f"Decision(summary): {state.decision}")
     if reason:
         print(f"Reason: {reason}")
 

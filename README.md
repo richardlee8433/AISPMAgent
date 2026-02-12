@@ -44,3 +44,21 @@ git clone https://github.com/richardlee8433/AISPMAgent.git
 # Run the Graph-based workflow
 # This will invoke the state machine from MF -> EVAL -> GATE -> LTI/COS
 python main.py
+
+
+### LTI Authoring (Obsidian-backed)
+
+Configure local vault path before running `ai_spm/lti_graph.py`:
+
+- Copy `ai_spm/config/local_paths.sample.json` -> `ai_spm/config/local_paths.json`
+- Set `obsidian_vault_root` to your real vault root
+
+The graph now uses a two-step gate:
+- **Post action (LPL)**: `publish_now|schedule|do_not_publish|hold`
+- **Canonical action (LTI)**: `merge_now|create_now|update_later|no_change`
+
+If post action is `publish_now` or `schedule`, the agent writes:
+- `11_LPL/YYYY/MM/LPL-YYYYMMDDTHHMMSSZ-NNN.md`
+- `90_AgentData/lpl_index.jsonl` (append-only SSOT)
+
+If canonical action is `merge_now` or `create_now`, the agent writes canonical updates and refreshes `ai_spm/data/lti_index.json`.

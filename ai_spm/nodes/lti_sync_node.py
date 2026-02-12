@@ -1,7 +1,7 @@
 import json
 import re
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, UTC
 
 INDEX_PATH = Path("data") / "lti_index.json"
 DOCS_DIR = Path("lti_docs")
@@ -11,7 +11,7 @@ ID_RE = re.compile(r"(LTI-\d+(?:\.\d+){0,2})")
 def backup_index():
     if not INDEX_PATH.exists():
         return
-    ts = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+    ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     backup = INDEX_PATH.parent / f"lti_index.backup.{ts}.json"
     backup.write_text(INDEX_PATH.read_text(encoding="utf-8"), encoding="utf-8")
 

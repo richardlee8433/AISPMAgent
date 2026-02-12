@@ -15,18 +15,10 @@ from nodes.lti_sync_node import lti_sync_node
 from nodes.lti_dedupe_node import lti_dedupe_node
 from nodes.lti_role_classifier_node import lti_role_classifier_node
 from nodes.lti_gate_node import lti_gate_node
-from nodes.lti_append_node import lti_append_node
-from nodes.lti_cos_node import lti_cos_node
+from nodes.post_persist_node import post_persist_node
+from nodes.lti_update_node import lti_update_node
 from nodes.lti_editor_node import lti_editor_node
 from nodes.lti_id_mapper_node import lti_id_mapper_node
-
-
-def route_after_gate(state: LTIState) -> str:
-    if state.decision == "append":
-        return "APPEND"
-    if state.decision in ("archive", "merge"):
-        return "COS"
-    return "END"
 
 
 graph = StateGraph(LTIState)
@@ -38,9 +30,8 @@ graph.add_node("ROLE_CLASSIFIER", lti_role_classifier_node)
 graph.add_node("EDITOR", lti_editor_node)
 graph.add_node("ID_MAPPER", lti_id_mapper_node)
 graph.add_node("GATE", lti_gate_node)
-graph.add_node("APPEND", lti_append_node)
-graph.add_node("COS", lti_cos_node)
-
+graph.add_node("POST_PERSIST", post_persist_node)
+graph.add_node("LTI_UPDATE", lti_update_node)
 
 
 # Wiring
@@ -50,19 +41,9 @@ graph.add_edge("DEDUPE", "ROLE_CLASSIFIER")
 graph.add_edge("ROLE_CLASSIFIER", "EDITOR")
 graph.add_edge("EDITOR", "ID_MAPPER")
 graph.add_edge("ID_MAPPER", "GATE")
-
-graph.add_conditional_edges(
-    "GATE",
-    route_after_gate,
-    {
-        "APPEND": "APPEND",
-        "COS": "COS",
-        "END": END,
-    },
-)
-
-graph.add_edge("APPEND", END)
-graph.add_edge("COS", END)
+graph.add_edge("GATE", "POST_PERSIST")
+graph.add_edge("POST_PERSIST", "LTI_UPDATE")
+graph.add_edge("LTI_UPDATE", END)
 
 app = graph.compile()
 
@@ -90,5 +71,8 @@ if __name__ == "__main__":
     print("Verdict:", (final_state.dedupe_payload or {}).get("verdict"))
     print("Role classification:", getattr(final_state, "role_classification", None))
     print("Decision:", final_state.decision)
+    print("Post action:", final_state.post_action)
+    print("Canonical decision:", final_state.canonical_decision)
     print("Sync added:", (final_state.action_result or {}).get("sync_added_count", 0))
-    print("Action result:", final_state.action_result)
+    print("Post result:", final_state.post_result)
+    print("Canonical result:", final_state.canonical_result)
