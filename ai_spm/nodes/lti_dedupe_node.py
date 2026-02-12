@@ -24,7 +24,7 @@ def lti_dedupe_node(state: "LTIState") -> "LTIState":
         lti_id = (item.get("id") or "").strip()
         title = item.get("title", "")
 
-        full = d2.read_doc_text(lti_id)  # tolerant match (exact or prefix)
+        full = d2.read_doc_text(lti_id, item)  # ID-first match via index map, then filename fallback
         f_score = d2.score_full(draft, d2.normalize_input(full)) if full else None
         m_score = d2.score_meta(draft, item)
         t_hit = d2.score_title_hit(draft, title)

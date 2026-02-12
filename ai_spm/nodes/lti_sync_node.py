@@ -121,7 +121,9 @@ def lti_sync_node(state):
             "status": "active",
             "published_at": "",
             "tags": tags,
-            "summary": summary
+            "summary": summary,
+            "doc_path": path.name,
+            "aliases": [path.name],
         }
         new_entries.append(entry)
         existing_ids.add(lti_id)
