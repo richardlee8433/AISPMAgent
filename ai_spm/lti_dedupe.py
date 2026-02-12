@@ -3,6 +3,7 @@ from pathlib import Path
 from datetime import datetime
 from rapidfuzz import fuzz
 import re
+from typing import Iterable
 
 INDEX_PATH = Path("data") / "lti_index.json"
 DOCS_DIR = Path("lti_docs")
@@ -21,14 +22,72 @@ def load_index():
         print(f"Index JSON is invalid: {INDEX_PATH}")
         return []
 
-def read_doc_text(lti_id: str) -> str | None:
+
+def _extract_frontmatter_id(text: str) -> str | None:
     """
-    tolerant doc match:
-    1) exact: lti_docs/<id>.md
-    2) tolerant: any file starting with "<id>" (e.g., "LTI-6.1 — title.md")
+    Parse a minimal YAML-frontmatter id field.
+    Expected shape:
+    ---
+    id: LTI-6.1
+    ---
+    """
+    if not text.startswith("---"):
+        return None
+
+    lines = text.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return None
+
+    for line in lines[1:]:
+        if line.strip() == "---":
+            return None
+        m = re.match(r"^id\s*:\s*(.+)$", line.strip(), flags=re.IGNORECASE)
+        if m:
+            return m.group(1).strip().strip("\"'")
+    return None
+
+
+def _path_candidates_from_index(item: dict) -> Iterable[Path]:
+    doc_path = (item.get("doc_path") or "").strip()
+    if doc_path:
+        p = Path(doc_path)
+        yield p if p.is_absolute() else DOCS_DIR / p
+
+    for alias in item.get("aliases") or []:
+        alias = (alias or "").strip()
+        if not alias:
+            continue
+        p = Path(alias)
+        yield p if p.is_absolute() else DOCS_DIR / p
+
+
+def _find_doc_path_by_frontmatter_id(lti_id: str) -> Path | None:
+    if not DOCS_DIR.exists():
+        return None
+
+    for path in sorted(DOCS_DIR.glob("*.md")):
+        try:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        if (_extract_frontmatter_id(text) or "").strip() == lti_id:
+            return path
+    return None
+
+def read_doc_text(lti_id: str, item: dict | None = None) -> str | None:
+    """
+    ID-first doc resolution (not filename-locked):
+    1) index mapped path: item.doc_path / item.aliases
+    2) exact: lti_docs/<id>.md
+    3) tolerant: any file starting with "<id>" (e.g., "LTI-6.1 — title.md")
+    4) frontmatter fallback: find file with YAML id: <id>
     """
     if not DOCS_DIR.exists():
         return None
+
+    for p in _path_candidates_from_index(item or {}):
+        if p.exists():
+            return p.read_text(encoding="utf-8", errors="ignore")
 
     exact = DOCS_DIR / f"{lti_id}.md"
     if exact.exists():
@@ -37,6 +96,10 @@ def read_doc_text(lti_id: str) -> str | None:
     candidates = sorted(DOCS_DIR.glob(f"{lti_id}*.md"))
     if candidates:
         return candidates[0].read_text(encoding="utf-8", errors="ignore")
+
+    fm_match = _find_doc_path_by_frontmatter_id(lti_id)
+    if fm_match:
+        return fm_match.read_text(encoding="utf-8", errors="ignore")
 
     return None
 
@@ -213,7 +276,7 @@ def main():
         lti_id = (item.get("id") or "").strip()
         title = item.get("title", "")
 
-        full = read_doc_text(lti_id)
+        full = read_doc_text(lti_id, item)
         f_score = score_full(draft, normalize_input(full)) if full else None
         m_score = score_meta(draft, item)
         t_hit = score_title_hit(draft, title)
@@ -260,7 +323,7 @@ def main():
         suggestion = f"NEW. Create a new LTI entry (suggested id: {next_id}) and append to the index."
 
     print(f"\nSuggestion: {suggestion}")
-    print("\nTip: Put full texts at lti_docs/<LTI-ID>.md (e.g., lti_docs/LTI-6.1.md), or keep titled files like 'LTI-6.1 — ....md' (tolerant match enabled).")
+    print("\nTip: Prefer index doc_path / aliases or frontmatter id: LTI-x.y. Filename is now only a fallback.")
 
     payload = {
         "run_id": run_id,
