@@ -9,7 +9,7 @@ from typing import Any
 DEFAULT_PATHS = {
     "index_dir": "00_Index",
     "lti_dir": "10_LTI",
-    "lpl_dir": "11_LPL",
+    "lpl_dir": "08_LPL_Library",
     "cos_dir": "12_COS",
     "agent_data_dir": "90_AgentData",
 }
