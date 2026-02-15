@@ -58,7 +58,7 @@ The graph now uses a two-step gate:
 - **Canonical action (LTI)**: `merge_now|create_now|update_later|no_change`
 
 If post action is `publish_now` or `schedule`, the agent writes:
-- `11_LPL/YYYY/MM/LPL-YYYYMMDDTHHMMSSZ-NNN.md`
+- `08_LPL_Library/YYYY/MM/LPL-YYYYMMDDTHHMMSSZ-NNN.md`
 - `90_AgentData/lpl_index.jsonl` (append-only SSOT)
 
 If canonical action is `merge_now` or `create_now`, the agent writes canonical updates and refreshes `ai_spm/data/lti_index.json`.
