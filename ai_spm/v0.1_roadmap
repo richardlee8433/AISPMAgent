@@ -39,7 +39,7 @@ AI Native PM/
     ...
     LTI-6.4.md
 
-  11_LPL/                        # LinkedIn Post Library（時間線）
+  08_LPL_Library/                        # LinkedIn Post Library（時間線）
     2026/
       01/
         LPL-20260129-001.md
@@ -177,7 +177,7 @@ agent 讀的 machine index（JSON/JSONL）
 
 每發一篇就 append 一行：
 
-{"lpl_id":"LPL-20260129-001","date_created":"2026-01-29T16:40:51Z","date_published":null,"status":"draft","title":"From Prompt to Agent: Making Evaluation Governable","canonical_lti_targets":["LTI-6.4"],"language":"en","one_liner":"Evaluation’s value is defining responsibility and enabling governance.","path":"11_LPL/2026/01/LPL-20260129-001.md"}
+{"lpl_id":"LPL-20260129-001","date_created":"2026-01-29T16:40:51Z","date_published":null,"status":"draft","title":"From Prompt to Agent: Making Evaluation Governable","canonical_lti_targets":["LTI-6.4"],"language":"en","one_liner":"Evaluation’s value is defining responsibility and enabling governance.","path":"08_LPL_Library/2026/01/LPL-20260129-001.md"}
 
 
 好處：append-only 不容易壞、也適合 run artifacts 對齊。
@@ -229,7 +229,7 @@ GATE（你）
 
 POST_PERSIST_NODE（只在你選擇「要發文」時執行）
 
-寫入 Obsidian：11_LPL/.../LPL-YYYYMMDD-NNN.md
+寫入 Obsidian：08_LPL_Library/.../LPL-YYYYMMDD-NNN.md
 
 append lpl_index.jsonl
 
@@ -275,7 +275,7 @@ merge_to_existing 且你確認 merge → 產出 合併後 LTI 內容、覆寫 LT
 
 模式 A：agent 在本機直接寫檔（你現況最容易）
 
-Python node 直接寫到 G:\My Drive\... 路徑
+Python node 直接寫到 G:\My Drive\AI Native PM\AI Native PM\08_LPL_Library\ 路徑
 
 注意：Google Drive 同步可能延遲 → 建議寫入後做一次 os.path.exists 確認
 
@@ -305,7 +305,7 @@ merge now / later / no change
 
 你不要一次做太多，我建議先做 MVP v0.1：
 
-✅ POST_PERSIST_NODE：能把你確認要發的文章寫到 11_LPL/ + append lpl_index.jsonl
+✅ POST_PERSIST_NODE：能把你確認要發的文章寫到 08_LPL_Library/ + append lpl_index.jsonl
 ✅ LTI_UPDATE_NODE：僅支援 merge_to_existing（覆寫 LTI + bump version + update lti_index.json）
 
 其餘（md index 自動生成、metrics 回填）可以 v0.2 再做。
