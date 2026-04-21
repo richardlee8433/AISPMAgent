@@ -1,64 +1,71 @@
-AISPMAgent: The AI-SPM Development Pipeline 🤖
-An automated, governance-first workflow for building and evaluating AI product features.
+# AISPMAgent
 
-🎯 The "System-for-AI-Products" Mission
-Building AI products is not about writing a single prompt; it's about managing a probabilistic lifecycle. AISPMAgent is a technical implementation of an automated PM pipeline. It ensures that no AI feature is shipped without passing through a rigorous Evaluation and Governance gate.
+A personal AI PM operating system for building in public — with governance.
 
-It demonstrates a core AI PM capability: Engineering the product's decision-making logic.
+## What this is
 
-🧠 The Core Engine (Based on main.py)
-This project uses a LangGraph-powered State Machine to manage the transition from "Idea" to "Knowledge."
+AISPMAgent started as a LangGraph-based evaluation and governance pipeline for AI features. It has evolved into a practical toolset for an AI-native PM who publishes on LinkedIn and manages knowledge across systems.
 
-State-Based Workflow Nodes:
-MF Execute (Implementation): The core execution node where the AI feature or task is built.
+## Current active tooling: pmos
 
-EVAL (Evaluation): A dedicated node that runs LLM-based evaluation against predefined rubrics.
+`pmos` is a lightweight CLI for managing LinkedIn posts with brand consistency.
 
-GATE (Governance): A critical decision-making node. It doesn't just pass data; it judges it based on evaluation scores.
+### pmos lpl check
 
-LTI (Learning, Trust, Iteration): The "Success" path. Only items that pass the Gate are published and integrated into the long-term knowledge base.
+Run before publishing a LinkedIn post. Checks the draft against all published posts and brand positioning.
 
-COS (Archive): The "Risk-Mitigation" path. Failed iterations are archived for analysis, preventing faulty logic from reaching production.
+```bash
+python -m pmos.commands.lpl_check
+```
 
-🛠 Technical Implementation
-LangGraph StateGraph: Unlike linear scripts, this project uses a graph-based architecture to handle complex loops and conditional routing.
+What it does:
+- Paste your draft, end with /end
+- Runs rapidfuzz similarity check against all published .md files in your LPL Library
+- If similarity >= 85%: returns DUPLICATE immediately, no API call
+- If similarity < 85%: calls GPT-4.1-mini for semantic judgment
+- Returns: Core Claim, Most Similar Posts, Similarity Level, Positioning Fit, Decision (GO / REVISE / DUPLICATE)
 
-Conditional Routing (route): Implements the logic approve -> LTI vs reject -> COS, showcasing how to automate Risk-Tiered Release Criteria.
+### pmos lpl add
 
-UniverseState Management: Maintains a consistent state across different stages of the AI product lifecycle.
+Run after publishing. Adds the new post to lpl_index.jsonl.
 
-📊 The "Strategic Portfolio" Connection
-This project is the Integration Layer of my AI PM ecosystem:
+```bash
+python -m pmos.commands.lpl_add
+```
 
-MentorFlow: The specialized RAG & Evaluation technology.
+## Brand context
 
-AISPMAgent: The Automated Pipeline that orchestrates development (using the logic in main.py).
+Richard's positioning: AI native PM who keeps humans in the judgment seat.
+Core belief: AI accelerates capability, but accountability stays with the person.
 
-AIPMO: The Organizational Framework and Natural Language Command Engine.
+Posts are organized into four clusters:
+- A: AI removes bottlenecks but widens the judgment gap
+- B: PM's job is to define boundaries in ambiguity
+- C: Build-in-public — VIVERSE creator onboarding series
+- D: Tool evaluations and AI as infrastructure
 
-🚀 Usage
-Bash
-# Clone the AI PM Pipeline
-git clone https://github.com/richardlee8433/AISPMAgent.git
+## Legacy: LangGraph pipeline
 
-# Run the Graph-based workflow
-# This will invoke the state machine from MF -> EVAL -> GATE -> LTI/COS
-python main.py
+The original LangGraph pipeline (lti_graph.py) handled LTI knowledge management with nodes for deduplication, role classification, editorial review, and canonical mapping. This is currently frozen while the simpler pmos tooling is the active workflow.
 
+## Setup
 
-### LTI Authoring (Obsidian-backed)
+1. Copy config/local_paths.sample.json to config/local_paths.json
+2. Set obsidian_vault_root to your local vault path
+3. Set OPENAI_API_KEY in your .env file
+4. pip install openai python-dotenv pyyaml rapidfuzz
 
-Configure local vault path before running `ai_spm/lti_graph.py`:
-
-- Copy `ai_spm/config/local_paths.sample.json` -> `ai_spm/config/local_paths.json`
-- Set `obsidian_vault_root` to your real vault root
-
-The graph now uses a two-step gate:
-- **Post action (LPL)**: `publish_now|schedule|do_not_publish|hold`
-- **Canonical action (LTI)**: `merge_now|create_now|update_later|no_change`
-
-If post action is `publish_now` or `schedule`, the agent writes:
-- `08_LPL_Library/YYYY/MM/LPL-YYYYMMDDTHHMMSSZ-NNN.md`
-- `90_AgentData/lpl_index.jsonl` (append-only SSOT)
-
-If canonical action is `merge_now` or `create_now`, the agent writes canonical updates and refreshes `ai_spm/data/lti_index.json`.
+## Structure
+ai_spm/
+pmos/
+commands/
+lpl_check.py      # pre-publish brand check
+lpl_add.py        # post-publish index update
+data/
+brand_context.json
+lpl_index.jsonl   # append-only post index
+prompts/
+lpl_check.txt     # prompt template
+config/
+local_paths.sample.json
+lti_graph.py          # legacy LangGraph pipeline (frozen)
