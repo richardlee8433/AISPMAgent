@@ -1,128 +1,247 @@
 import os
 import json
 import sys
-import yaml
 import argparse
 from datetime import datetime, timezone
+from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv()
 
-def get_data_paths():
-    base_data_dir = os.path.join("pmos", "data")
-    config_path = os.path.join("ai_spm", "config", "local_paths.json")
-    if os.path.exists(config_path):
-        try:
-            with open(config_path, "r") as f:
-                config = json.load(f)
-                vault_paths = config.get("vault_paths", {})
-                agent_data_dir = vault_paths.get("agent_data_dir")
-                obsidian_root = config.get("obsidian_vault_root")
-                if agent_data_dir and obsidian_root:
-                    potential_path = os.path.join(obsidian_root, agent_data_dir)
-                    if os.path.exists(potential_path):
-                        base_data_dir = potential_path
-        except Exception:
-            pass
-    return {
-        "lpl_index": os.path.join(base_data_dir, "lpl_index.jsonl")
-    }
+# ── Cluster suggestion ────────────────────────────────────────────────────────
 
-def append_to_index(entry):
-    paths = get_data_paths()
-    os.makedirs(os.path.dirname(paths["lpl_index"]), exist_ok=True)
-    with open(paths["lpl_index"], "a", encoding="utf-8") as f:
-        f.write(json.dumps(entry) + "\n")
-    print(f"Added [{entry['lpl_id']}] to lpl_index.jsonl")
+def load_brand_context() -> dict:
+    _here = Path(__file__).resolve().parent
+    path = _here.parent / "data" / "brand_context.json"
+    if path.exists():
+        return json.loads(path.read_text(encoding="utf-8"))
+    return {}
+
+def suggest_cluster(draft: str) -> str | None:
+    """Call OpenAI to suggest a cluster. Returns A/B/C/D or None if unavailable."""
+    try:
+        from openai import OpenAI
+        brand = load_brand_context()
+        clusters = brand.get("clusters", {})
+        if not clusters:
+            return None
+
+        cluster_desc = "\n".join(f"  {k}: {v}" for k, v in clusters.items())
+        prompt = (
+            f"You are classifying a LinkedIn post into one of four content clusters.\n\n"
+            f"Clusters:\n{cluster_desc}\n\n"
+            f"Post:\n\"\"\"\n{draft[:2000]}\n\"\"\"\n\n"
+            f"Reply with exactly one letter: A, B, C, or D."
+        )
+
+        client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        resp = client.chat.completions.create(
+            model="gpt-4.1-mini",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=5,
+            temperature=0,
+        )
+        answer = resp.choices[0].message.content.strip().upper()
+        return answer if answer in {"A", "B", "C", "D"} else None
+    except Exception:
+        return None
+
+
+# ── Config ────────────────────────────────────────────────────────────────────
+
+def load_config() -> dict:
+    _here = Path(__file__).resolve().parent
+    config_path = _here.parent.parent / "config" / "local_paths.json"
+    if config_path.exists():
+        return json.loads(config_path.read_text(encoding="utf-8"))
+    return {}
+
+def get_vault_root(cfg: dict) -> Path | None:
+    root = cfg.get("obsidian_vault_root")
+    return Path(root) if root else None
+
+def get_lpl_dir(cfg: dict) -> str:
+    return cfg.get("vault_paths", {}).get("lpl_dir", "08_LPL_Library")
+
+def get_index_path(cfg: dict) -> Path:
+    root = get_vault_root(cfg)
+    agent_dir = cfg.get("vault_paths", {}).get("agent_data_dir", "90_AgentData")
+    if root:
+        return root / agent_dir / "lpl_index.jsonl"
+    _here = Path(__file__).resolve().parent
+    return _here.parent / "data" / "lpl_index.jsonl"
+
+
+# ── Helpers ───────────────────────────────────────────────────────────────────
+
+def generate_lpl_id() -> str:
+    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    return f"LPL-{ts}-001"
+
+def iso_now() -> str:
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+def extract_title(draft: str) -> str:
+    """Use first non-empty line as title fallback (max 120 chars)."""
+    for line in draft.splitlines():
+        line = line.strip()
+        if line:
+            return line[:120]
+    return "(Untitled)"
+
+def read_draft_stdin() -> str:
+    print("Paste your draft. End with a single line: /end\n")
+    lines = []
+    for line in sys.stdin:
+        if line.strip() == "/end":
+            break
+        lines.append(line)
+    return "".join(lines).strip()
+
+def build_frontmatter(lpl_id: str, title: str, hook: str, cluster: str,
+                      post_url: str, rel_path: str) -> str:
+    now = iso_now()
+    lines = [
+        "---",
+        "type: lpl_post",
+        f"lpl_id: {lpl_id}",
+        f'date_created: "{now}"',
+        f'date_published: "{now}"',
+        "status: published",
+        "channel: linkedin",
+        "language: en",
+        f'title: "{title}"',
+        f'hook: "{hook}"',
+        f"cluster: {cluster}",
+        "canonical_lti_targets: []",
+        f"path: {rel_path}",
+    ]
+    if post_url:
+        lines.append("links:")
+        lines.append(f'  url: "{post_url}"')
+    lines.append("---")
+    return "\n".join(lines)
+
+
+# ── Core ──────────────────────────────────────────────────────────────────────
+
+def write_md(cfg: dict, lpl_id: str, title: str, hook: str, cluster: str,
+             post_url: str, draft: str) -> Path:
+    root = get_vault_root(cfg)
+    lpl_dir = get_lpl_dir(cfg)
+    yyyy = lpl_id[4:8]
+    mm   = lpl_id[8:10]
+
+    rel_path = f"{lpl_dir}/{yyyy}/{mm}/{lpl_id}.md"
+
+    if root:
+        abs_path = root / lpl_dir / yyyy / mm / f"{lpl_id}.md"
+    else:
+        _here = Path(__file__).resolve().parent
+        abs_path = _here.parent.parent / lpl_dir / yyyy / mm / f"{lpl_id}.md"
+
+    abs_path.parent.mkdir(parents=True, exist_ok=True)
+
+    fm = build_frontmatter(lpl_id, title, hook, cluster, post_url, rel_path)
+    content = fm + "\n\n" + draft + "\n"
+    abs_path.write_text(content, encoding="utf-8")
+    return abs_path
+
+def append_index(cfg: dict, lpl_id: str, title: str, hook: str,
+                 cluster: str, rel_path: str) -> None:
+    idx = get_index_path(cfg)
+    idx.parent.mkdir(parents=True, exist_ok=True)
+    entry = {
+        "lpl_id": lpl_id,
+        "date_created": iso_now(),
+        "date_published": iso_now(),
+        "status": "published",
+        "title": title,
+        "hook": hook,
+        "cluster": cluster,
+        "canonical_lti_targets": [],
+        "language": "en",
+        "path": rel_path,
+    }
+    with idx.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+
+
+# ── CLI ───────────────────────────────────────────────────────────────────────
 
 def main():
-    parser = argparse.ArgumentParser(description="Add an LPL post to the index.")
-    parser.add_argument("--id", help="LPL ID")
-    parser.add_argument("--title", help="Post title")
-    parser.add_argument("--hook", help="Post hook")
-    parser.add_argument("--cluster", help="Cluster (A/B/C/D)")
-    
-    # We might be called with no args, or some args.
-    # If any manual flag is provided, we assume manual mode for the provided fields.
-    # But the spec says "Mode 2 - manual flags: python -m pmos.commands.lpl_add --id ... --title ... --hook ... --cluster A"
-    # "Appends directly, no prompts."
-    
-    args, unknown = parser.parse_known_args()
-    
-    if args.id and args.title and args.hook and args.cluster:
-        # Mode 2: Manual
-        entry = {
-            "lpl_id": args.id,
-            "title": args.title,
-            "hook": args.hook,
-            "cluster": args.cluster,
-            "status": "published",
-            "date_added": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-        }
-        append_to_index(entry)
+    parser = argparse.ArgumentParser(description="Add an LPL post — writes .md to vault and updates index.")
+    parser.add_argument("--title",    help="Post title (auto-extracted from first line if omitted)")
+    parser.add_argument("--hook",     help="One-liner hook sentence")
+    parser.add_argument("--cluster",  help="Cluster A / B / C / D")
+    parser.add_argument("--post-url", default="", help="Published LinkedIn URL (optional)")
+    parser.add_argument("--id",       help="LPL ID (auto-generated if omitted)")
+    args = parser.parse_args()
+
+    cfg = load_config()
+    interactive = sys.stdin.isatty()
+
+    # Draft
+    draft = read_draft_stdin()
+    if not draft:
+        print("Empty draft. Exiting.")
+        return
+
+    # ── Metadata ──────────────────────────────────────────────────────────────
+    # Pipe mode (stdin not a tty): rely entirely on flags, no input() calls.
+    # Interactive mode: prompt for any missing field.
+
+    if interactive:
+        title    = args.title    or input(f"Title [{extract_title(draft)}]: ").strip() or extract_title(draft)
+        hook     = args.hook     or input("Hook: ").strip()
+        post_url = args.post_url or input("LinkedIn URL (optional, Enter to skip): ").strip()
     else:
-        # Mode 1: Interactive
-        print("Paste your LPL frontmatter (the --- block). End with /end")
-        fm_lines = []
-        while True:
-            line = sys.stdin.readline()
-            if not line:
-                break
-            if line.strip() == "/end":
-                break
-            fm_lines.append(line)
-        fm_text = "".join(fm_lines).strip()
-        
-        if not fm_text:
-            print("Empty input. Exiting.")
-            return
+        title    = args.title    or extract_title(draft)
+        hook     = args.hook     or ""
+        post_url = args.post_url or ""
 
-        # Handle optional --- delimiters
-        lines = fm_text.splitlines()
-        if lines[0].strip() == "---":
-            lines = lines[1:]
-        if lines and lines[-1].strip() == "---":
-            lines = lines[:-1]
-        fm_text = "\n".join(lines)
-            
-        try:
-            data = yaml.safe_load(fm_text)
-        except Exception as e:
-            print(f"Error parsing YAML: {e}")
-            return
-            
-        if not isinstance(data, dict):
-            print("Error: Invalid frontmatter format. Expected a YAML mapping.")
-            return
+    if args.cluster:
+        cluster = args.cluster.upper()
+    else:
+        brand = load_brand_context()
+        cluster_desc = brand.get("clusters", {})
+        print("\nSuggesting cluster...", end=" ", flush=True)
+        suggestion = suggest_cluster(draft)
+        if suggestion:
+            desc = cluster_desc.get(suggestion, "")
+            print(f"{suggestion}  ({desc})")
+            if interactive:
+                confirm = input(f"Cluster [{suggestion}]: ").strip().upper()
+                cluster = confirm if confirm in {"A", "B", "C", "D"} else suggestion
+            else:
+                cluster = suggestion
+                print(f"→ auto-accepted: {cluster}")
+        else:
+            print("(no suggestion)")
+            if interactive:
+                for k, v in cluster_desc.items():
+                    print(f"  {k}: {v}")
+                cluster = input("Cluster [A/B/C/D]: ").strip().upper()
+            else:
+                cluster = "D"  # safe default when no suggestion and no tty
+                print(f"→ fallback default: {cluster}")
 
-        lpl_id = data.get("lpl_id")
-        title = data.get("title")
-        hook = data.get("hook")
-        status = data.get("status", "published")
-        
-        if not lpl_id or not title:
-            print(f"Error: Missing {'lpl_id' if not lpl_id else 'title'} in frontmatter.")
-            if not lpl_id:
-                print("LPL ID is required.")
-            if not title:
-                print("Title is required.")
-            return
-            
-        if not hook:
-            print("No hook found in frontmatter. Please provide one:")
-            hook = sys.stdin.readline().strip()
-            
-        cluster = input("Cluster? [A/B/C/D]: ").strip().upper()
-        
-        entry = {
-            "lpl_id": lpl_id,
-            "title": title,
-            "hook": hook,
-            "cluster": cluster,
-            "status": status,
-            "date_added": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-        }
-        append_to_index(entry)
+    if cluster not in {"A", "B", "C", "D"}:
+        print(f"Invalid cluster '{cluster}'. Must be A, B, C or D.")
+        return
+
+    lpl_id = args.id or generate_lpl_id()
+    lpl_dir = get_lpl_dir(cfg)
+    yyyy, mm = lpl_id[4:8], lpl_id[8:10]
+    rel_path = f"{lpl_dir}/{yyyy}/{mm}/{lpl_id}.md"
+
+    abs_path = write_md(cfg, lpl_id, title, hook, cluster, post_url, draft)
+    append_index(cfg, lpl_id, title, hook, cluster, rel_path)
+
+    print(f"\n✅ {lpl_id}")
+    print(f"   .md  → {abs_path}")
+    print(f"   idx  → {get_index_path(cfg)}")
+
 
 if __name__ == "__main__":
     main()

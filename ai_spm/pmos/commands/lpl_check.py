@@ -9,11 +9,15 @@ from rapidfuzz import fuzz
 load_dotenv()
 
 def get_data_paths():
-    # Fallback
-    base_data_dir = os.path.join("pmos", "data")
+    # Resolve paths relative to this file so the script works from any cwd
+    _here = os.path.dirname(os.path.abspath(__file__))
+    _pmos_root = os.path.join(_here, "..")          # pmos/
+    _ai_spm_root = os.path.join(_pmos_root, "..")   # ai_spm/
+
+    base_data_dir = os.path.join(_pmos_root, "data")
     obsidian_root = None
-    
-    config_path = os.path.join("config", "local_paths.json")
+
+    config_path = os.path.join(_ai_spm_root, "config", "local_paths.json")
     if os.path.exists(config_path):
         try:
             with open(config_path, "r") as f:
@@ -27,11 +31,11 @@ def get_data_paths():
                         base_data_dir = potential_path
         except Exception:
             pass
-            
+
     return {
-        "brand_context": os.path.join("pmos", "data", "brand_context.json"),
+        "brand_context": os.path.join(_pmos_root, "data", "brand_context.json"),
         "lpl_index": os.path.join(base_data_dir, "lpl_index.jsonl"),
-        "prompt_template": os.path.join("pmos", "prompts", "lpl_check.txt"),
+        "prompt_template": os.path.join(_pmos_root, "prompts", "lpl_check.txt"),
         "obsidian_root": obsidian_root
     }
 

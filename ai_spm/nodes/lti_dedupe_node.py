@@ -2,6 +2,25 @@ from __future__ import annotations
 
 from typing import Dict, Any
 import lti_dedupe as d2  # your existing script (safe to import)
+from nodes.praxis_dedupe import run_praxis_dedupe
+
+
+def _combine_verdicts(text_verdict: str, praxis_verdict: str) -> str:
+    """
+    Merge text-similarity verdict (NEW/OVERLAP/DUPLICATE) with PRAXIS
+    concept-layer verdict (NEW/PATCH/COVERED) into a unified verdict.
+
+    Hard rules:
+      - DUPLICATE (text) always → COVERED
+      - Otherwise PRAXIS verdict is authoritative, with one refinement:
+        text=OVERLAP + praxis=NEW → PATCH (same style, new argument)
+    """
+    if text_verdict == "DUPLICATE":
+        return "COVERED"
+    if text_verdict == "OVERLAP" and praxis_verdict == "NEW":
+        return "PATCH"
+    return praxis_verdict  # NEW, PATCH, or COVERED
+
 
 def lti_dedupe_node(state: "LTIState") -> "LTIState":
     """
@@ -45,18 +64,26 @@ def lti_dedupe_node(state: "LTIState") -> "LTIState":
     top = scored[:5]
     best = top[0] if top else {"combined": 0.0, "title_hit": 0.0, "id": None, "title": None, "series": None}
 
-    verdict = d2.classify(best["combined"], best["title_hit"])
+    text_verdict = d2.classify(best["combined"], best["title_hit"])
+
+    # --- PRAXIS concept-layer dedup (Step 2) ---
+    praxis = run_praxis_dedupe(draft)
+    combined_verdict = _combine_verdicts(text_verdict, praxis.get("verdict", "NEW"))
 
     suggested_new_id = None
-    if verdict == "NEW":
+    if combined_verdict == "NEW":
         series = state.series_hint or best.get("series") or "LTI-6.x / Judgement-as-a-Service"
         suggested_new_id = d2.next_id_for_series(index, series)
 
     payload: Dict[str, Any] = {
         "run_id": state.run_id,
-        "verdict": verdict,
-        "best_score": round(float(best["combined"]), 4),
+        # Unified verdict (NEW / PATCH / COVERED)
+        "verdict": combined_verdict,
+        "verdict_reason": praxis.get("reason", ""),
+        # Legacy text-similarity scores (preserved for downstream)
+        "similarity_score": round(float(best["combined"]), 4),
         "best_title_hit": round(float(best["title_hit"]), 4),
+        "text_verdict": text_verdict,
         "best_match": {
             "id": best.get("id"),
             "title": best.get("title"),
@@ -74,9 +101,13 @@ def lti_dedupe_node(state: "LTIState") -> "LTIState":
             }
             for x in top
         ],
+        # PRAXIS concept-layer results
+        "concept_match": praxis.get("concept_match", []),
+        "insight_coverage": praxis.get("insight_coverage", []),
+        "praxis_available": praxis.get("praxis_available", False),
         "suggested_new_id": suggested_new_id,
         "config": {
-            "mode": "Full-text Mode A | LangGraph Node",
+            "mode": "Full-text + PRAXIS | LangGraph Node v2",
             "docs_dir": str(d2.DOCS_DIR),
             "index_path": str(d2.INDEX_PATH),
             "thresholds": {
@@ -93,5 +124,12 @@ def lti_dedupe_node(state: "LTIState") -> "LTIState":
     # Store in state for downstream Gate/Actions
     payload["index_ids"] = [it.get("id") for it in index if it.get("id")]
     state.dedupe_payload = payload
+    state.praxis_dedupe = {
+        "concept_match": praxis.get("concept_match", []),
+        "insight_coverage": praxis.get("insight_coverage", []),
+        "verdict": praxis.get("verdict", "NEW"),
+        "reason": praxis.get("reason", ""),
+        "praxis_available": praxis.get("praxis_available", False),
+    }
     return state
 

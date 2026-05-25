@@ -1,9 +1,20 @@
 {
   "positioning": "AI native PM who keeps humans in the judgment seat. Core belief: AI accelerates capability, but accountability stays with the person.",
+  "target_perception": "PM who can uplift an entire team's AI capability — not an individual contributor who builds solo tools.",
   "clusters": {
     "A": "AI removes bottlenecks but widens the judgment gap — speed exposes whether your thinking is structured enough",
     "B": "PM's job is to define boundaries in ambiguity — without waiting for permission or clarity from others",
-    "C": "Build-in-public: VIVERSE creator onboarding evolving from static docs to conversational learning systems",
+    "C": "Build-in-public: sharing real product decisions, iterations, and lessons learned in the open",
     "D": "Tool evaluations and AI as infrastructure — substrate matters as much as system logic"
-  }
+  },
+  "writing_principles": [
+    {
+      "id": "WP-01",
+      "label": "System framing over IC framing",
+      "rule": "Every time you write about something you built or did alone, also surface what the system would enable a team to do. The story is never 'look what I can do.' It is 'here is the operating model a team could inherit.'",
+      "wrong": "I built this agent and it saved me three days.",
+      "right": "I built this agent to produce a brief that any sales rep can act on without a PM in the room.",
+      "why": "CPOs and CTOs are not hiring for IC output. They are hiring someone to design and implement the operating model their team will run. Show them the model, not the personal productivity win."
+    }
+  ]
 }

@@ -13,6 +13,7 @@ class LTIState(BaseModel):
     # Run / evidence
     run_id: str = Field(default_factory=_run_id)
     dedupe_payload: Optional[Dict[str, Any]] = None  # persisted to runs/
+    praxis_dedupe: Optional[Dict[str, Any]] = None   # PRAXIS concept-layer result
 
     # NEW: role classification (OpenAI)
     role_classification: Optional[Dict[str, Any]] = None
